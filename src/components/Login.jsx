@@ -22,8 +22,6 @@ const Login = () => {
                 history.push("/secrets")
             }
         })
-        // .then(() => history.push("/secrets"))
-        // .catch(err => console.error(err))
     }
 
     return (
