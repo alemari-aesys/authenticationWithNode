@@ -10,8 +10,8 @@ const App = () => {
         <div>
             <Switch>
                 <Route exact path="/" render={() => <Home />} />
-                <Route exact path="/login" render={() => <Login />} />
-                <Route exact path="/register" render={() => <Register />} />
+                <Route path="/login" render={() => <Login />} />
+                <Route path="/register" render={() => <Register />} />
                 <PrivateRoute path="/secrets" component={Secrets} />
             </Switch>
         </div>

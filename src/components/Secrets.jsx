@@ -1,9 +1,14 @@
-
-
 const Secrets = () => {
-    return (
-        <h1>YOU'RE A MORON, BUT IT WAS NO SECRET</h1>
-    )
-}
+  return (
+    <>
+      <div className="first">
+        <h1>SECRET:</h1>
+      </div>
+      <div className="second">
+        <h1>Kennedy è ancora vivo</h1>
+      </div>
+    </>
+  );
+};
 
 export default Secrets;

@@ -4,20 +4,20 @@ const cors = require("cors");
 const app = express();
 app.use(express.static("public"))
 app.use(express.json()); //replaces body-parser
-app.use(cors())
-const session = require("express-session");
-const passport = require("passport");
-const passportLocalMongoose = require("passport-local-mongoose")
+app.use(cors());
+// const session = require("express-session");
+// const passport = require("passport");
+// const passportLocalMongoose = require("passport-local-mongoose")
 const Schema = mongoose.Schema;
 
-app.use(session({
-    secret: "Our little secret",
-    resave: false,
-    saveUninitialized: false
-}))
+// app.use(session({
+//     secret: "Our little secret",
+//     resave: false,
+//     saveUninitialized: false
+// }))
 
-app.use(passport.initialize());
-app.use(passport.session());
+// app.use(passport.initialize());
+// app.use(passport.session());
 mongoose.set("useCreateIndex", true);
 
 mongoose.connect("mongodb://localhost:27017/userDB", {useNewUrlParser: true, useUnifiedTopology: true });
@@ -27,15 +27,19 @@ const userSchema = new Schema ({
     password: String
 });
 
-userSchema.plugin(passportLocalMongoose);
+// userSchema.plugin(passportLocalMongoose);
 
 const User = new mongoose.model("User", userSchema) //automatically creates a "users" collection inside your DB
 
-passport.use(User.createStrategy());
+// passport.use(User.createStrategy());
 
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
+// passport.serializeUser(User.serializeUser());
+// passport.deserializeUser(User.deserializeUser());
 
+
+app.get("/", (req, res) => {
+    res.send('<h1>Server running properly</h1>')
+})
 
 app.get("/secrets", (req, res) => {
     let final = finder(req.body.username, req.body.password, req, res);
@@ -46,8 +50,8 @@ app.get("/secrets", (req, res) => {
 
 
 app.post("/register", (req, res) => {
-    /*const newUser = new User({
-        email: req.body.email,
+    const newUser = new User({
+        username: req.body.username,
         password: req.body.password
     })
 
@@ -58,20 +62,21 @@ app.post("/register", (req, res) => {
             console.log(err);
         } else {
             console.log("SUCCESS");
+            res.status(200).send({result: "success", username: req.body.username})
         }
-    })*/
+    })
 
-    User.register({username: req.body.username},
-        req.body.password, (err, user) => {
-            if (err) {
-                console.log(err);
-            } else {
-                passport.authenticate("local")(req, res, () => {
-                    console.log("SUCCESS, check your DB");
-                    res.status(200).send({result: "success", username: req.body.username});
-                })
-            }
-        })
+    // User.register({username: req.body.username},
+    //     req.body.password, (err, user) => {
+    //         if (err) {
+    //             console.log(err);
+    //         } else {
+    //             passport.authenticate("local")(req, res, () => {
+    //                 console.log("SUCCESS, check your DB");
+    //                 res.status(200).send({result: "success", username: req.body.username});
+    //             })
+    //         }
+    //     })
 });
 
 app.post("/login", (req, res) => {
@@ -79,24 +84,24 @@ app.post("/login", (req, res) => {
     const password = req.body.password;
 
     console.log(username, password);
-
     finder(username, password, req, res);
 })
 
 
 
 const finder = (username, password, request, response) => {
-    User.findOne({username}, (err, foundUser) => {
+    User.findOne({username: username}, (err, foundUser) => {
         if (foundUser) {
+            console.log(foundUser.password);
             if (foundUser.password === password) {
                 response.status(200).send({result: "success", username});
                 return "SUCCESS"
             } else {
-                response.status(200).send({result: "success", username});
+                response.status(400).send({result: "FAILURE: wrong password"});
                 return "FAILURE: wrong password"
             }
         } else {
-            response.status(200).send({result: "success", username});
+            response.status(404).send({result: "FAILURE: no such user"});
             return "FAILURE: no such user"
         }
     })
